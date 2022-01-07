@@ -18,6 +18,8 @@ class MyClient(discord.Client):
         self.bot = botObj
         self.last_time = time.time()
         self.rec_messages = []
+        self.priority_msg = []
+        self.last_msg_id = 0
 
     def can_send(self):
         elapsed = time.time() - self.last_time
@@ -28,7 +30,11 @@ class MyClient(discord.Client):
             return False
 
     def check_mention(self, m):
-        if m.reference is not None and not m.is_system:
+        mention = f'<@!{self.user.id}>'
+        if m.reference is not None:
+            if m.reference.message_id == self.last_msg_id:
+                return True
+        elif mention in m.content:
             return True
         return False
 
@@ -47,9 +53,9 @@ class MyClient(discord.Client):
             self.rec_messages.append(message.content)
 
             # Check if the bot it mentioned
-            mention = f'<@!{self.user.id}>'
-            if mention in message.content:
+            if self.check_mention(message):
                 print(f'BOT MENTION: {message.content}')
+                self.priority_msg.append(message)
 
             # Ping command
             if message.content == 'qqqq':
@@ -61,12 +67,19 @@ class MyClient(discord.Client):
                         filtered = list(filter(lambda x: len(
                             x) < 900 and '\n' not in x, self.rec_messages))  # filter long messages away  
 
-                        # Pick random message to answer
-                        to_answer = random.choice(filtered)
-                        self.rec_messages.clear()  # Clear the rec_messages
-                        print(f'Answering: {to_answer}')
-                        response = self.bot.gen_message(to_answer)
-                        await message.channel.send(response)
+                        if len(self.priority_msg) != 0:  # Priority messages to process
+                            msg = self.priority_msg[0]
+                            self.priority_msg.clear()
+                            response = self.bot.gen_message(msg.content, True)
+                            self.last_msg_id = await message.reply(response, mention_author=False)
+
+                        else:
+                            # Pick random message to answer
+                            to_answer = random.choice(filtered)
+                            self.rec_messages.clear()  # Clear the rec_messages
+                            print(f'Answering: {to_answer}')
+                            response = self.bot.gen_message(to_answer)
+                            self.last_msg_id = await message.channel.send(response)
 
 
 # //////
@@ -115,10 +128,13 @@ class DiscordBot:
         self.ranker_dict = build_ranker_dict(
             device=device, **prior_ranker_weights, **cond_ranker_weights)
 
-    def gen_message(self, msg):
+    def gen_message(self, msg, reply=False):
         """Receive message, generate response, and send it back to the user."""
 
-        max_turns_history = self.chatbot_params.get('max_turns_history', 2)
+        if reply:
+            max_turns_history = 1
+        else:
+            max_turns_history = self.chatbot_params.get('max_turns_history', 2)
 
         user_message = msg
 
