@@ -70,7 +70,9 @@ class MyClient(discord.Client):
                         if len(self.priority_msg) != 0:  # Priority messages to process
                             msg = self.priority_msg[0]
                             self.priority_msg.clear()
+                            self.rec_messages.clear()
                             response = self.bot.gen_message(msg.content, True)
+                            print(f'Answering WITH PRIO: {msg}')
                             self.last_msg_id = await message.reply(response, mention_author=False)
 
                         else:
