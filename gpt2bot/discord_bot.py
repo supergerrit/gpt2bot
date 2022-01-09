@@ -11,7 +11,7 @@ load_dotenv()
 class MyClient(discord.Client):
 
     channel_name = os.environ.get("CHANNEL_NAME")  # channel to work on
-    min_time = os.environ.get("DELAY")  # minimum time to elapse to respond again
+    min_time = float(os.environ.get("DELAY"))  # minimum time to elapse to respond again
 
     def __init__(self, botObj):
         super().__init__()
@@ -34,6 +34,8 @@ class MyClient(discord.Client):
         if m.reference is not None:
             if m.reference.message_id == self.last_msg_id:
                 return True
+            # else:
+            #     print(f'{m.reference.message_id} != {self.last_msg_id}')
         elif mention in m.content:
             return True
         return False
@@ -73,7 +75,8 @@ class MyClient(discord.Client):
                             self.rec_messages.clear()
                             response = self.bot.gen_message(msg.content, True)
                             print(f'Answering WITH PRIO: {msg}')
-                            self.last_msg_id = await message.reply(response, mention_author=False)
+                            last_msg = await message.reply(response, mention_author=False)
+                            self.last_msg_id = last_msg.id
 
                         else:
                             # Pick random message to answer
@@ -81,7 +84,8 @@ class MyClient(discord.Client):
                             self.rec_messages.clear()  # Clear the rec_messages
                             print(f'Answering: {to_answer}')
                             response = self.bot.gen_message(to_answer)
-                            self.last_msg_id = await message.channel.send(response)
+                            last_msg = await message.channel.send(response)
+                            self.last_msg_id = last_msg.id
 
 
 # //////
