@@ -2,7 +2,7 @@
 This fork of the gpt2bot has added functionality for Discord. The idea was born on a Discord NFT server, where it was requierd to chat every minute (for 100 hours) to gain XP in order to be whitelisted. So called grinding. Of course this can be done smarter :). This bot uses the DialoGTP model to generate answers on messages written in a channel and gain XP this way.
 
 ### How does it work?
-The reads all messages on a specific channel and stores these in a list. Every `n` seconds it chooses a random message, generates a answer to this message and posts this in the channel. It gives warnings in the terminal about possible bot detections.
+The reads all messages on a specific channel and stores these in a list. Every `n` seconds it chooses a random message, generates a answer to this message and posts this in the channel. If the bot get mentioned or recives a answer on one of his messages, it will reply to this in the next response.
 
 
 ### Get started
@@ -15,7 +15,6 @@ The reads all messages on a specific channel and stores these in a list. Every `
 - Run the bot using the followin command: `python run_bot.py --type=discord --config=my_chatbot.cfg`
 
 ### TODO
-- Implement answer functionality. For example if the bot got a reply, answer to this in the next message.
 - Reply to possible bot detection messages and maybe start a delay.
 - Multi channel support
 - If you have any nice additions, feel free to open a pull request
