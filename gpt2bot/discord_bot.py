@@ -45,7 +45,7 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
         # Only work on one channel
-        if self.channel_name in message.channel.name and not '2' in message.channel.name:
+        if self.channel_name in message.channel.name and not '2' in message.channel.name and not '3' in message.channel.name: 
 
             # don't respond to ourselves
             if message.author == self.user:
@@ -74,8 +74,8 @@ class MyClient(discord.Client):
                             self.priority_msg.clear()
                             self.rec_messages.clear()
                             response = self.bot.gen_message(msg.content, True)
-                            print(f'Answering WITH PRIO: {msg}')
-                            last_msg = await message.reply(response, mention_author=False)
+                            print(f'Answering WITH PRIO: {msg.content}')
+                            last_msg = await msg.reply(response, mention_author=False)
                             self.last_msg_id = last_msg.id
 
                         else:
